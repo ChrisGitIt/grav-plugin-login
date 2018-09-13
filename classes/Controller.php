@@ -389,13 +389,15 @@ class Controller
                     unset($user->hashed_password, $user->reset);
                     $user->password = $password;
 
-                    $user->validate();
-                    $user->filter();
-                    $user->save();
-
-                    $messages->add($language->translate('PLUGIN_LOGIN.RESET_PASSWORD_RESET'), 'info');
-                    $this->setRedirect($this->grav['config']->get('plugins.login.route', '/'));
-
+                    try {
+                        $user->validate();
+                        $user->filter();
+                        $user->save();
+                        $messages->add($language->translate('PLUGIN_LOGIN.RESET_PASSWORD_RESET'), 'info');
+                        $this->setRedirect($this->grav['config']->get('plugins.login.route', '/'));
+                    } catch (\RuntimeException $e) {
+                        $messages->add($language->translate($e->getMessage()), 'error');
+                    }
                     return true;
                 }
             }
